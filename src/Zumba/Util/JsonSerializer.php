@@ -77,14 +77,19 @@ class JsonSerializer {
 			return;
 		}
 		$encoded = preg_replace_callback(
-			'/\\\\u([0-9a-f]{4})/i',
+			'/(.)?\\\\u([0-9a-f]{4})/i',
 			function ($matches) {
-				$sym = mb_convert_encoding(
-					pack('H*', $matches[1]),
+				if ($matches[1] !== "\\") {
+					$sym = mb_convert_encoding(
+						pack('H*', $matches[2]),
 						'UTF-8',
 						'UTF-16'
 					);
-				return $sym;
+
+					return $matches[1] . $sym;
+				} else {
+					return $matches[0];
+				}
 			},
 			$encoded
 		);
